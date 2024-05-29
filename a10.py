@@ -103,6 +103,7 @@ def get_birth_date(name: str) -> str:
         birth date of the given person
     """
     infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    #print(infobox_text)
     pattern = r"(?:Born\D*)(?P<birth>\d{4}-\d{2}-\d{2})"
     error_text = (
         "Page infobox has no birth information (at least none in xxxx-xx-xx format)"
@@ -110,6 +111,40 @@ def get_birth_date(name: str) -> str:
     match = get_match(infobox_text, pattern, error_text)
 
     return match.group("birth")
+
+def get_plant_species(plant_name: str) -> str:
+    """Gets plant species of the given plant
+    Args:
+        plant_name - name of the plant
+    Returns:
+        draft year of the given person
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(plant_name)))
+    #print(infobox_text)
+    pattern = r"(?:Type species\W*)(?P<species>\w+ \w+)"
+    error_text = (
+        "Page infobox has no plant species information"
+        )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("species")
+
+def get_place_born(place_name: str) -> str:
+    """Gets  of the given plant
+    Args:
+        plant_name - name of the plant
+    Returns:
+        draft year of the given person
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(plant_name)))
+    #print(infobox_text)
+    pattern = r"(?:Type species\W*)(?P<species>\w+ \w+)"
+    error_text = (
+        "Page infobox has no plant species information"
+        )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("species")
 
 
 # below are a set of actions. Each takes a list argument and returns a list of answers
@@ -140,6 +175,19 @@ def polar_radius(matches: List[str]) -> List[str]:
     """
     return [get_polar_radius(matches[0])]
 
+#some plants wont work because not all pages have plant species listed (rose, hydrangea, and tulip work so far)
+def plant_species(matches: List[str]) -> List[str]:
+    """Returns species of named plant in matches
+
+    Args:
+        matches - match from pattern of plant's name to find species
+
+    Returns:
+        species of named plant
+    """
+    return [get_plant_species(" ".join(matches))]
+
+
 
 # dummy argument is ignored and doesn't matter
 def bye_action(dummy: List[str]) -> None:
@@ -156,7 +204,8 @@ Action = Callable[[List[str]], List[Any]]
 pa_list: List[Tuple[Pattern, Action]] = [
     ("when was % born".split(), birth_date),
     ("what is the polar radius of %".split(), polar_radius),
-    (["bye"], bye_action),
+    ("what type of plant species is a %".split(), plant_species),
+    (["bye"], bye_action)
 ]
 
 
@@ -184,7 +233,7 @@ def search_pa_list(src: List[str]) -> List[str]:
 def query_loop() -> None:
     """The simple query loop. The try/except structure is to catch Ctrl-C or Ctrl-D
     characters and exit gracefully"""
-    print("Welcome to the movie database!\n")
+    print("Welcome to the Wikipedia database!\n")
     while True:
         try:
             print()
