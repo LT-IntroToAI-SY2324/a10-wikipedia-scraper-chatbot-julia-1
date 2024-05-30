@@ -129,22 +129,40 @@ def get_plant_species(plant_name: str) -> str:
 
     return match.group("species")
 
-def get_place_born(place_name: str) -> str:
-    """Gets  of the given plant
+def get_death_date(name: str) -> str:
+    """Gets death date of the given person
+
     Args:
-        plant_name - name of the plant
+        name - name of the person
+
     Returns:
-        draft year of the given person
+        death date of the given person
     """
-    infobox_text = clean_text(get_first_infobox_text(get_page_html(plant_name)))
-    #print(infobox_text)
-    pattern = r"(?:Type species\W*)(?P<species>\w+ \w+)"
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    print(infobox_text)
+    pattern = r"(?:Died\s*)(?P<death>\w* \d{1,2}, \d{1,4})"
     error_text = (
-        "Page infobox has no plant species information"
+        "Page infobox has no death information"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("death")
+
+def get_song_release(song_name: str) -> str:
+    """Gets release date of given song
+        song_name - name of the song
+    Returns:
+        Release date of given song
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(song_name)))
+    #print(infobox_text)
+    pattern = r"(?:Released\W*)(?P<release_date>\w* \d{1,2}, \d{1,4})"
+    error_text = (
+        "Page infobox has no release date information"
         )
     match = get_match(infobox_text, pattern, error_text)
 
-    return match.group("species")
+    return match.group("release_date")
 
 
 # below are a set of actions. Each takes a list argument and returns a list of answers
@@ -187,7 +205,27 @@ def plant_species(matches: List[str]) -> List[str]:
     """
     return [get_plant_species(" ".join(matches))]
 
+def death_date(matches: List[str]) -> List[str]:
+    """Returns death date of named person in matches
 
+    Args:
+        matches - match from pattern of person's name to find death date of
+
+    Returns:
+        death date of named person
+    """
+    return [get_death_date(" ".join(matches))]
+
+def release_date(matches: List[str]) -> List[str]:
+    """Returns release date of named song in matches
+
+    Args:
+        matches - match from pattern of song name to find release date of
+
+    Returns:
+        release date of named person
+    """
+    return [get_song_release(" ".join(matches))]
 
 # dummy argument is ignored and doesn't matter
 def bye_action(dummy: List[str]) -> None:
@@ -205,6 +243,8 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("when was % born".split(), birth_date),
     ("what is the polar radius of %".split(), polar_radius),
     ("what type of plant species is a %".split(), plant_species),
+    ("when did % die".split(), death_date),
+    ("when did % come out".split(), release_date),
     (["bye"], bye_action)
 ]
 
